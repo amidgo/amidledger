@@ -1,0 +1,4 @@
+./wallet
+./keystore
+./chaincode/vendor
+./test-network/node_modules

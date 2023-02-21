@@ -14,8 +14,9 @@ import (
 )
 
 type FunctionBody struct {
-	Name string   `json:"name"`
-	Args []string `json:"args"`
+	Name  string   `json:"name"`
+	Login string   `json:"login"`
+	Args  []string `json:"args"`
 }
 type Err struct {
 	Error string `json:"error"`
@@ -37,7 +38,7 @@ func main() {
 	c.POST("/transact", func(ctx *gin.Context) {
 		var body FunctionBody
 		ctx.BindJSON(&body)
-		contact, gw := GetContract()
+		contact, gw := GetContract(body.Login)
 		defer gw.Close()
 		json, err := contact.SubmitTransaction(body.Name, body.Args...)
 		if err != nil {
@@ -49,7 +50,7 @@ func main() {
 	c.POST("/call", func(ctx *gin.Context) {
 		var body FunctionBody
 		ctx.BindJSON(&body)
-		contact, gw := GetContract()
+		contact, gw := GetContract(body.Login)
 		defer gw.Close()
 		json, err := contact.EvaluateTransaction(body.Name, body.Args...)
 		if err != nil {
@@ -61,7 +62,7 @@ func main() {
 	c.Run("0.0.0.0:1110")
 }
 
-func GetContract() (*gateway.Contract, *gateway.Gateway) {
+func GetContract(name string) (*gateway.Contract, *gateway.Gateway) {
 	os.Setenv("DISCOVERY_AS_LOCALHOST", "true")
 	wallet, err := gateway.NewFileSystemWallet("wallet")
 	if err != nil {
@@ -69,8 +70,8 @@ func GetContract() (*gateway.Contract, *gateway.Gateway) {
 		os.Exit(1)
 	}
 
-	if !wallet.Exists("appUser") {
-		err = populateWallet(wallet)
+	if !wallet.Exists(name) {
+		err = populateWallet(name, wallet)
 		if err != nil {
 			fmt.Printf("Failed to populate wallet contents: %s\n", err)
 			os.Exit(1)
@@ -87,7 +88,7 @@ func GetContract() (*gateway.Contract, *gateway.Gateway) {
 
 	gw, err := gateway.Connect(
 		gateway.WithConfig(config.FromFile(filepath.Clean(ccpPath))),
-		gateway.WithIdentity(wallet, "appUser"),
+		gateway.WithIdentity(wallet, name),
 	)
 	if err != nil {
 		fmt.Printf("Failed to connect to gateway: %s\n", err)
@@ -101,7 +102,7 @@ func GetContract() (*gateway.Contract, *gateway.Gateway) {
 	return network.GetContract(CONTRACT_NAME), gw
 }
 
-func populateWallet(wallet *gateway.Wallet) error {
+func populateWallet(name string, wallet *gateway.Wallet) error {
 	credPath := filepath.Join(
 		"test-network",
 		"organizations",
@@ -136,7 +137,7 @@ func populateWallet(wallet *gateway.Wallet) error {
 
 	identity := gateway.NewX509Identity("Org1MSP", string(cert), string(key))
 
-	err = wallet.Put("appUser", identity)
+	err = wallet.Put(name, identity)
 	if err != nil {
 		return err
 	}
