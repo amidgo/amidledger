@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -14,9 +15,8 @@ import (
 )
 
 type FunctionBody struct {
-	Name  string   `json:"name"`
-	Login string   `json:"login"`
-	Args  []string `json:"args"`
+	Name string   `json:"name"`
+	Args []string `json:"args"`
 }
 type Err struct {
 	Error string `json:"error"`
@@ -34,44 +34,14 @@ func main() {
 	c := gin.Default()
 	c.Use(cors.Default())
 	os.Setenv("DISCOVERY_AS_LOCALHOST", "true")
-
-	c.POST("/transact", func(ctx *gin.Context) {
-		var body FunctionBody
-		ctx.BindJSON(&body)
-		contact, gw := GetContract(body.Login)
-		defer gw.Close()
-		json, err := contact.SubmitTransaction(body.Name, body.Args...)
-		if err != nil {
-			ctx.JSON(http.StatusBadRequest, &Err{err.Error()})
-			return
-		}
-		ctx.PureJSON(http.StatusOK, string(json))
-	})
-	c.POST("/call", func(ctx *gin.Context) {
-		var body FunctionBody
-		ctx.BindJSON(&body)
-		contact, gw := GetContract(body.Login)
-		defer gw.Close()
-		json, err := contact.EvaluateTransaction(body.Name, body.Args...)
-		if err != nil {
-			ctx.JSON(http.StatusBadRequest, &Err{err.Error()})
-			return
-		}
-		ctx.PureJSON(http.StatusOK, string(json))
-	})
-	c.Run("0.0.0.0:1110")
-}
-
-func GetContract(name string) (*gateway.Contract, *gateway.Gateway) {
-	os.Setenv("DISCOVERY_AS_LOCALHOST", "true")
 	wallet, err := gateway.NewFileSystemWallet("wallet")
 	if err != nil {
 		fmt.Printf("Failed to create wallet: %s\n", err)
 		os.Exit(1)
 	}
 
-	if !wallet.Exists(name) {
-		err = populateWallet(name, wallet)
+	if !wallet.Exists("appUser") {
+		err = populateWallet(wallet)
 		if err != nil {
 			fmt.Printf("Failed to populate wallet contents: %s\n", err)
 			os.Exit(1)
@@ -88,21 +58,46 @@ func GetContract(name string) (*gateway.Contract, *gateway.Gateway) {
 
 	gw, err := gateway.Connect(
 		gateway.WithConfig(config.FromFile(filepath.Clean(ccpPath))),
-		gateway.WithIdentity(wallet, name),
+		gateway.WithIdentity(wallet, "appUser"),
 	)
 	if err != nil {
 		fmt.Printf("Failed to connect to gateway: %s\n", err)
 		os.Exit(1)
 	}
+	defer gw.Close()
+
 	network, err := gw.GetNetwork(CHANNEL_NAME)
 	if err != nil {
 		fmt.Printf("Failed to get network: %s\n", err)
 		os.Exit(1)
 	}
-	return network.GetContract(CONTRACT_NAME), gw
+
+	contract := network.GetContract(CONTRACT_NAME)
+
+	c.POST("/transact", func(ctx *gin.Context) {
+		var body FunctionBody
+		ctx.BindJSON(&body)
+		json, err := contract.SubmitTransaction(body.Name, body.Args...)
+		if err != nil {
+			ctx.JSON(http.StatusBadRequest, &Err{err.Error()})
+			return
+		}
+		ctx.PureJSON(http.StatusOK, string(json))
+	})
+	c.POST("/call", func(ctx *gin.Context) {
+		var body FunctionBody
+		ctx.BindJSON(&body)
+		json, err := contract.EvaluateTransaction(body.Name, body.Args...)
+		if err != nil {
+			ctx.JSON(http.StatusBadRequest, &Err{err.Error()})
+			return
+		}
+		ctx.PureJSON(http.StatusOK, string(json))
+	})
+	c.Run("0.0.0.0:1110")
 }
 
-func populateWallet(name string, wallet *gateway.Wallet) error {
+func populateWallet(wallet *gateway.Wallet) error {
 	credPath := filepath.Join(
 		"test-network",
 		"organizations",
@@ -115,14 +110,14 @@ func populateWallet(name string, wallet *gateway.Wallet) error {
 
 	certPath := filepath.Join(credPath, "signcerts", "cert.pem")
 	// read the certificate pem
-	cert, err := os.ReadFile(filepath.Clean(certPath))
+	cert, err := ioutil.ReadFile(filepath.Clean(certPath))
 	if err != nil {
 		return err
 	}
 
 	keyDir := filepath.Join(credPath, "keystore")
 	// there's a single file in this dir containing the private key
-	files, err := os.ReadDir(keyDir)
+	files, err := ioutil.ReadDir(keyDir)
 	if err != nil {
 		return err
 	}
@@ -130,14 +125,14 @@ func populateWallet(name string, wallet *gateway.Wallet) error {
 		return errors.New("keystore folder should have contain one file")
 	}
 	keyPath := filepath.Join(keyDir, files[0].Name())
-	key, err := os.ReadFile(filepath.Clean(keyPath))
+	key, err := ioutil.ReadFile(filepath.Clean(keyPath))
 	if err != nil {
 		return err
 	}
 
 	identity := gateway.NewX509Identity("Org1MSP", string(cert), string(key))
 
-	err = wallet.Put(name, identity)
+	err = wallet.Put("appUser", identity)
 	if err != nil {
 		return err
 	}
