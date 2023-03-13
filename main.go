@@ -23,5 +23,21 @@ func main() {
 		ctx.HTML(http.StatusOK, "login.html", gin.H{})
 	})
 
+	c.POST("/login", routing.Login)
+
+	c.GET("/shop-page", routing.ShopPage)
+
+	c.GET("/provider-page", routing.ProviderPage)
+
+	c.GET("/getCost", routing.GetCost)
+
+	c.GET("/shopAcceptCostPage", routing.ShopAcceptPage)
+
+	c.POST("/shopAcceptCost", routing.ShopAcceptCost)
+
+	c.POST("/createProduct", routing.CreateProduct)
+
+	c.POST("/buyProduct", routing.BuyProduct)
+
 	c.Run("0.0.0.0:1110")
 }

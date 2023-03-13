@@ -9,15 +9,15 @@
 <body>
     <div>
         <div>
-            {{.TempFailAmount}}
+            Temp Fail Amount {{.TempFailAmount}}
         </div>
         <div>
-            {{.CurrentPrice}}
+            Current Price {{.CurrentPrice}}
         </div>
-        <form action="/buyProduct?role={{.Role}}&login={{.Login}}&accept=false&id={{.Id}}" method="post">
+        <form action="/buyProduct?role={{.UserData.Role}}&login={{.UserData.Login}}&accept=false&id={{.Id}}" method="post">
             <button>Decline</button>
         </form>
-        <form action="/buyProduct?role={{.Role}}&login={{.Login}}&accept=false$id={{.Id}}" method="post">
+        <form action="/buyProduct?role={{.UserData.Role}}&login={{.UserData.Login}}&accept=true&id={{.Id}}" method="post">
             <button>Accept</button>
         </form>
     </div>

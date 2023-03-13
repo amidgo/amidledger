@@ -7,35 +7,25 @@
     <title>Document</title>
 </head>
 <body>
-    <div>
-        Name {{.UserData.Login}}
-    </div>
-    <div>
-        Balance {{.UserData.Balance}}
-    </div>
-    <div>
-        City {{.Shop.City}}
-    </div>
+    <div>Number {{.Shop.Login}}</div>
     Products
-    {{range .Products}}
+    {{range .Shop.Products}}
     <div>
         <div>Name {{.Name}}</div>
         <div>Price {{.Price}}</div>
+        <div>Amount {{.Amount}}</div>
     </div>
     {{end}}
     <div>
-        <form action="/getCost?role={{.UserData.Role}}&login={{.UserData.Login}}" method="get">
+        <form action="/returnProduct?login={{.UserData.Login}}&role={{.UserData.Role}}">
             <div>
                 <input type="text" name="name" placeholder="Name">
             </div>
-            <div>
-                <input type="number" name="amount" placeholder="Amount">
-            </div>
-            <button>GetCost</button>
+            <button>Return</button>
         </form>
     </div>
     <div>
-        <form action="/shopAcceptCost?role={{.UserData.Role}}&login={{.UserData.Login}}" method="post">
+        <form action="/buyProductCustomer?login={{.UserData.Login}}&role={{.UserData.Role}}">
             <div>
                 <input type="text" name="name" placeholder="Name">
             </div>
@@ -45,13 +35,5 @@
             <button>Buy</button>
         </form>
     </div>
-    Products
-    {{range .Shop.Products}}
-    <div>
-        <div>Name {{.Name}}</div>
-        <div>Price {{.Price}}</div>
-        <div>Amount {{.Amount}}</div>
-    </div>
-    {{end}}
 </body>
 </html>

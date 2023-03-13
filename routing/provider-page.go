@@ -7,5 +7,5 @@ import (
 )
 
 func ProviderPage(c *gin.Context) {
-	c.HTML(http.StatusOK, "provider.html", gin.H{"UserData": UserData{Login: c.Query("login"), Role: c.Query("role")}})
+	c.HTML(http.StatusOK, "provider.html", gin.H{"UserData": GetUserData(c)})
 }

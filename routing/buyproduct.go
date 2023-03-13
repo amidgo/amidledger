@@ -1,15 +1,19 @@
 package routing
 
-import "github.com/gin-gonic/gin"
+import (
+	"fmt"
 
-func AcceptCost(c *gin.Context) {
-	shop := c.Request.FormValue("shop")
-	productName := c.Request.FormValue("product")
-	amount := c.Request.FormValue("amount")
+	"github.com/gin-gonic/gin"
+)
 
-	_, err := transact("shopAcceptCost", shop, productName, amount)
-
+func BuyProduct(c *gin.Context) {
+	id := c.Query("id")
+	accept := c.Query("accept")
+	fmt.Println(accept)
+	_, err := transact("shopBuyProduct", id, accept)
 	if err != nil {
 		RedirectToError(c, err)
+		return
 	}
+	RedirectFromRequestToRolePage(c)
 }

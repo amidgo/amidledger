@@ -138,6 +138,10 @@ func (c *ShopContract) Delivery(ctx contractapi.TransactionContextInterface, sho
 	return shopTx, nil
 }
 
+func (c *ShopContract) GetShopTransaction(ctx contractapi.TransactionContextInterface, shopTxId string) (*assets.ShopTransaction, error) {
+	return assets.GetShopTx(ctx, shopTxId)
+}
+
 func (c *ShopContract) ShopBuyProduct(ctx contractapi.TransactionContextInterface, shopTxId string, isAccept bool) error {
 	shopTx, err := assets.GetShopTx(ctx, shopTxId)
 	if err != nil {

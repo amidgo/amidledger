@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div>
+        Login {{.UserData.Login}}
+    </div>
+    <div>
+        Fio {{.UserData.Fio}}
+    </div>
+    <div>
+        Balance {{.UserData.Balance}}
+    </div>
+    Products
+    {{range .UserData.Products}}
+    <div>
+        <div>Name {{.Name}}</div>
+        <div>Price {{.Price}}</div>
+        <div>Amount {{.Amount}}</div>
+    </div>
+    {{end}}
+    Shops 
+    {{range .Shops}}
+        <div>Shop {{.Number}}</div>
+    {{end}}
+    <div>
+        <form action="/customerShopPage?login={{.UserData.Login}}&role={{.UserData.Role}}">
+            <input type="text" name="shop" placeholder="ShopNumber">
+            <button>To Shop</button>
+        </form>
+    </div>
+</body>
+</html>

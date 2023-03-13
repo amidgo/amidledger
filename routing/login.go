@@ -57,12 +57,28 @@ type ShopUser struct {
 	Shop *Shop       `json:"shop"`
 }
 
+func GetUserData(ctx *gin.Context) *UserData {
+	b, err := call("getUser", ctx.Query("login"))
+	if err != nil {
+		ctx.Redirect(http.StatusMovedPermanently, "/error?err="+err.Error())
+		return nil
+	}
+	usr := new(FabricUser)
+	json.Unmarshal(b, usr)
+	return &UserData{Login: ctx.Query("login"), Role: ctx.Query("role"), Balance: usr.Balance, Fio: usr.Fio}
+}
+
 func RedirectToError(ctx *gin.Context, err error) {
 	ctx.Redirect(http.StatusMovedPermanently, "/error?err="+err.Error())
 }
 
 func RedirectToRolePage(ctx *gin.Context, login string, role string) {
-	ctx.Redirect(http.StatusMovedPermanently, "/user-page"+"?login="+login+"&role="+role)
+	mapRoles := map[string]string{
+		"shop":     "/shop-page",
+		"provider": "/provider-page",
+		"user":     "/customer-page",
+	}
+	ctx.Redirect(http.StatusMovedPermanently, mapRoles[role]+"?login="+login+"&role="+role)
 }
 
 func RedirectFromRequestToRolePage(ctx *gin.Context) {
