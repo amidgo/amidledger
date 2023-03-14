@@ -57,7 +57,7 @@ type ShopUser struct {
 	Shop *Shop       `json:"shop"`
 }
 
-func GetUserData(ctx *gin.Context) *UserData {
+func GetUserData(ctx *gin.Context) *FabricUser {
 	b, err := call("getUser", ctx.Query("login"))
 	if err != nil {
 		ctx.Redirect(http.StatusMovedPermanently, "/error?err="+err.Error())
@@ -65,7 +65,7 @@ func GetUserData(ctx *gin.Context) *UserData {
 	}
 	usr := new(FabricUser)
 	json.Unmarshal(b, usr)
-	return &UserData{Login: ctx.Query("login"), Role: ctx.Query("role"), Balance: usr.Balance, Fio: usr.Fio}
+	return usr
 }
 
 func RedirectToError(ctx *gin.Context, err error) {
@@ -76,7 +76,7 @@ func RedirectToRolePage(ctx *gin.Context, login string, role string) {
 	mapRoles := map[string]string{
 		"shop":     "/shop-page",
 		"provider": "/provider-page",
-		"user":     "/customer-page",
+		"customer": "/customer-page",
 	}
 	ctx.Redirect(http.StatusMovedPermanently, mapRoles[role]+"?login="+login+"&role="+role)
 }

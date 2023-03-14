@@ -2,7 +2,6 @@ package routing
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -27,6 +26,8 @@ func ShopPage(c *gin.Context) {
 	}
 	shopUser := new(ShopUser)
 	json.Unmarshal(b, shopUser)
-	fmt.Println(shopUser.Shop)
-	c.HTML(http.StatusOK, "shop.html", gin.H{"Products": productList, "UserData": shopUser.User, "Shop": shopUser.Shop})
+	b, err = call("getProductListTxByShop", shopUser.User.Login)
+	requests := make([]*ProductReturnTx, 0)
+	json.Unmarshal(b, &requests)
+	c.HTML(http.StatusOK, "shop.html", gin.H{"Products": productList, "UserData": shopUser.User, "Shop": shopUser.Shop, "Requests": requests})
 }

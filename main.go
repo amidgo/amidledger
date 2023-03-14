@@ -29,15 +29,27 @@ func main() {
 
 	c.GET("/provider-page", routing.ProviderPage)
 
+	c.GET("/customer-page", routing.CustomerPage)
+
 	c.GET("/getCost", routing.GetCost)
 
 	c.GET("/shopAcceptCostPage", routing.ShopAcceptPage)
+
+	c.GET("/customerShopPage", routing.CustomerShopPage)
+
+	c.POST("/customerShopPageR", routing.CustomerShopPageR)
 
 	c.POST("/shopAcceptCost", routing.ShopAcceptCost)
 
 	c.POST("/createProduct", routing.CreateProduct)
 
 	c.POST("/buyProduct", routing.BuyProduct)
+
+	c.POST("/buyProductCustomer", routing.CustomerBuyProduct)
+
+	c.POST("/returnProduct", routing.ReturnProductToShop)
+
+	c.POST("/handleReturn", routing.HandleReturn)
 
 	c.Run("0.0.0.0:1110")
 }

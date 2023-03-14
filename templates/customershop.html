@@ -7,9 +7,9 @@
     <title>Document</title>
 </head>
 <body>
-    <div>Number {{.Shop.Login}}</div>
+    <div>Number {{.Shop.User.Login}}</div>
     Products
-    {{range .Shop.Products}}
+    {{range .Shop.Shop.Products}}
     <div>
         <div>Name {{.Name}}</div>
         <div>Price {{.Price}}</div>
@@ -17,17 +17,17 @@
     </div>
     {{end}}
     <div>
-        <form action="/returnProduct?login={{.UserData.Login}}&role={{.UserData.Role}}">
+        <form action="/returnProduct?login={{.UserData.Login}}&role={{.UserData.Role}}&shop={{.Shop.User.Login}}" method="post">
             <div>
-                <input type="text" name="name" placeholder="Name">
+                <input type="text" name="product" placeholder="Product">
             </div>
             <button>Return</button>
         </form>
     </div>
     <div>
-        <form action="/buyProductCustomer?login={{.UserData.Login}}&role={{.UserData.Role}}">
+        <form action="/buyProductCustomer?login={{.UserData.Login}}&role={{.UserData.Role}}&shop={{.Shop.User.Login}}" method="post">
             <div>
-                <input type="text" name="name" placeholder="Name">
+                <input type="text" name="product" placeholder="Product">
             </div>
             <div>
                 <input type="number" name="amount" placeholder="Amount">

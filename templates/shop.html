@@ -8,6 +8,11 @@
 </head>
 <body>
     <div>
+        <form action="/">
+            <button>Exit</button>
+        </form>
+    </div>
+    <div>
         Name {{.UserData.Login}}
     </div>
     <div>
@@ -16,7 +21,9 @@
     <div>
         City {{.Shop.City}}
     </div>
-    Products
+    <div>
+        Products
+    </div>
     {{range .Products}}
     <div>
         <div>Name {{.Name}}</div>
@@ -45,7 +52,9 @@
             <button>Buy</button>
         </form>
     </div>
-    Products
+    <div>
+        Products
+    </div>
     {{range .Shop.Products}}
     <div>
         <div>Name {{.Name}}</div>
@@ -53,5 +62,30 @@
         <div>Amount {{.Amount}}</div>
     </div>
     {{end}}
+    <div>
+        Requests
+    </div>
+    {{range .Requests}}
+        <div>
+            Id {{.Id}}
+        </div>
+        <div>
+            User Login {{.UserLogin}}
+        </div>
+        <div>
+            Product Name {{.ProductName}}
+        </div>
+    {{end}}
+    <div>
+        <form action="/handleReturn?login={{.UserData.Login}}&role={{.UserData.Role}}" method="post">
+            <div>
+                <input type="text" name="id" placeholder="Id">
+            </div>
+            <div>
+                <input type="checkbox" name="result">
+            </div>
+            <button>Handle</button>
+        </form>
+    </div>
 </body>
 </html>

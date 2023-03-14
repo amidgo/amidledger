@@ -234,10 +234,14 @@ func (c *ShopContract) GetProductListTxByShop(ctx contractapi.TransactionContext
 	return result, err
 }
 
-func (c *ShopContract) AcceptReturnProduct(ctx contractapi.TransactionContextInterface, id string, shopNumber string) error {
+func (c *ShopContract) AcceptReturnProduct(ctx contractapi.TransactionContextInterface, id string, shopNumber string, result bool) error {
 	prTx, err := assets.GetProductTx(ctx, id)
 	if err != nil {
 		return err
+	}
+	if !result {
+		ctx.GetStub().DelState("producttx@" + id)
+		return nil
 	}
 	user, err := assets.GetUser(ctx, prTx.UserLogin)
 	if err != nil {
